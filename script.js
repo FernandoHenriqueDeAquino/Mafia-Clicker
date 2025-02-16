@@ -52,28 +52,40 @@ function buyMaxUpgrade(unit, cost) {
     return amount;
 }
 
-function addEventListeners(idPrefix, unitVar, costVar) {
+function addEventListeners(idPrefix, unitVar) {
+    let costVar;
+    switch (unitVar) {
+        case "thugs": costVar = "thugCost"; break;
+        case "soldiers": costVar = "soldierCost"; break;
+        case "casinos": costVar = "casinoCost"; break;
+        default: return;
+    }
+
     document.getElementById(`${idPrefix}-1`).addEventListener("click", function() {
-        window[unitVar] += buyUpgrade(window[unitVar], window[costVar], 1);
+        let amount = buyUpgrade(eval(unitVar), eval(costVar), 1);
+        eval(unitVar + " += amount");
         updateDisplay();
     });
     document.getElementById(`${idPrefix}-10`).addEventListener("click", function() {
-        window[unitVar] += buyUpgrade(window[unitVar], window[costVar], 10);
+        let amount = buyUpgrade(eval(unitVar), eval(costVar), 10);
+        eval(unitVar + " += amount");
         updateDisplay();
     });
     document.getElementById(`${idPrefix}-100`).addEventListener("click", function() {
-        window[unitVar] += buyUpgrade(window[unitVar], window[costVar], 100);
+        let amount = buyUpgrade(eval(unitVar), eval(costVar), 100);
+        eval(unitVar + " += amount");
         updateDisplay();
     });
     document.getElementById(`${idPrefix}-max`).addEventListener("click", function() {
-        window[unitVar] += buyMaxUpgrade(window[unitVar], window[costVar]);
+        let amount = buyMaxUpgrade(eval(unitVar), eval(costVar));
+        eval(unitVar + " += amount");
         updateDisplay();
     });
 }
 
-addEventListeners("hire-thug", "thugs", "thugCost");
-addEventListeners("hire-soldier", "soldiers", "soldierCost");
-addEventListeners("buy-casino", "casinos", "casinoCost");
+addEventListeners("hire-thug", "thugs");
+addEventListeners("hire-soldier", "soldiers");
+addEventListeners("buy-casino", "casinos");
 
 document.getElementById("bribe-politician-1").addEventListener("click", function() {
     if (money >= bribeCost) {
