@@ -135,6 +135,7 @@ document.addEventListener("DOMContentLoaded", () => {
     updateUI();
 });
 
+// Assuming the functions are defined in script.js
 function setCookie(name, value, days) {
   const expires = new Date(Date.now() + days * 86400 * 1000).toUTCString();
   document.cookie = `${name}=${value}; expires=${expires}; path=/`;
@@ -155,12 +156,34 @@ function deleteCookie(name) {
   setCookie(name, '', -1);
 }
 
-// Set a cookie
-setCookie('username', 'John Doe', 30);
+// Set the initial values of money and upgrades in the cookies
+function setInitialValues() {
+  const initialMoney = 100; // Initial money value
+  const initialUpgrades = { level: 1, speed: 1, multiplier: 1 }; // Initial upgrades JSON object
 
-// Get a cookie
-const username = getCookie('username');
-console.log(username); // Output: John Doe
+  // Save initial values to cookies
+  setCookie('money', initialMoney.toString(), 30); // Save money value
+  setCookie('upgrades', JSON.stringify(initialUpgrades), 30); // Save upgrades JSON string
+}
 
-// Delete a cookie
-deleteCookie('username');
+// Set the interval to update cookies every minute
+setInterval(updateCookies, 60000); // 60000 milliseconds = 1 minute
+
+// Function to update cookies
+function updateCookies() {
+  // Retrieve current values from cookies
+  const money = getCookie('money');
+  const upgrades = getCookie('upgrades');
+
+  // Update values as needed
+  const newMoney = parseInt(money) + 10; // Add 10 money every minute
+  const newUpgrades = JSON.parse(upgrades); // Parse upgrades JSON string
+  newUpgrades.level += 1; // Upgrade level every minute
+
+  // Save updated values back to cookies
+  setCookie('money', newMoney.toString(), 30); // Save money value
+  setCookie('upgrades', JSON.stringify(newUpgrades), 30); // Save upgrades JSON string
+}
+
+// Call the setInitialValues function to set the initial values
+setInitialValues();
