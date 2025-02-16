@@ -4,10 +4,14 @@ let soldiers = 0;
 let casinos = 0;
 let bribes = 0;
 
-const thugCost = 10;
-const soldierCost = 1000;
-const casinoCost = 50000;
+let baseThugCost = 10;
+let baseSoldierCost = 1000;
+let baseCasinoCost = 50000;
 const bribeCost = 250000;
+
+let thugCost = baseThugCost;
+let soldierCost = baseSoldierCost;
+let casinoCost = baseCasinoCost;
 
 const moneyCounter = document.getElementById("money-counter");
 const thugCounter = document.getElementById("thug-counter");
@@ -20,10 +24,17 @@ document.getElementById("click-button").addEventListener("click", function() {
     updateDisplay();
 });
 
+function updateCosts() {
+    let discountFactor = Math.pow(0.75, bribes);
+    thugCost = baseThugCost * discountFactor;
+    soldierCost = baseSoldierCost * discountFactor;
+    casinoCost = baseCasinoCost * discountFactor;
+}
+
 function buyUpgrade(unit, cost, amount) {
     let totalCost = 0;
     for (let i = 0; i < amount; i++) {
-        totalCost += cost * Math.pow(1.15, unit);
+        totalCost += cost * Math.pow(1.15, unit + i);
     }
     if (money >= totalCost) {
         money -= totalCost;
@@ -41,29 +52,47 @@ function buyMaxUpgrade(unit, cost) {
     return amount;
 }
 
-function addEventListeners(idPrefix, unitVar, cost) {
+function addEventListeners(idPrefix, unitVar, costVar) {
     document.getElementById(`${idPrefix}-1`).addEventListener("click", function() {
-        window[unitVar] += buyUpgrade(window[unitVar], cost, 1);
+        window[unitVar] += buyUpgrade(window[unitVar], window[costVar], 1);
         updateDisplay();
     });
     document.getElementById(`${idPrefix}-10`).addEventListener("click", function() {
-        window[unitVar] += buyUpgrade(window[unitVar], cost, 10);
+        window[unitVar] += buyUpgrade(window[unitVar], window[costVar], 10);
         updateDisplay();
     });
     document.getElementById(`${idPrefix}-100`).addEventListener("click", function() {
-        window[unitVar] += buyUpgrade(window[unitVar], cost, 100);
+        window[unitVar] += buyUpgrade(window[unitVar], window[costVar], 100);
         updateDisplay();
     });
     document.getElementById(`${idPrefix}-max`).addEventListener("click", function() {
-        window[unitVar] += buyMaxUpgrade(window[unitVar], cost);
+        window[unitVar] += buyMaxUpgrade(window[unitVar], window[costVar]);
         updateDisplay();
     });
 }
 
-addEventListeners("hire-thug", "thugs", thugCost);
-addEventListeners("hire-soldier", "soldiers", soldierCost);
-addEventListeners("buy-casino", "casinos", casinoCost);
-addEventListeners("bribe-politician", "bribes", bribeCost);
+addEventListeners("hire-thug", "thugs", "thugCost");
+addEventListeners("hire-soldier", "soldiers", "soldierCost");
+addEventListeners("buy-casino", "casinos", "casinoCost");
+
+document.getElementById("bribe-politician-1").addEventListener("click", function() {
+    if (money >= bribeCost) {
+        money -= bribeCost;
+        bribes++;
+        updateCosts();
+        updateDisplay();
+    }
+});
+
+document.getElementById("bribe-politician-max").addEventListener("click", function() {
+    let maxBribes = Math.floor(money / bribeCost);
+    if (maxBribes > 0) {
+        money -= maxBribes * bribeCost;
+        bribes += maxBribes;
+        updateCosts();
+        updateDisplay();
+    }
+});
 
 function updateDisplay() {
     moneyCounter.textContent = Math.floor(money);
@@ -75,7 +104,7 @@ function updateDisplay() {
 
 // Passive income generation
 function generateIncome() {
-    money += (thugs * 1) + (soldiers * 10) + (casinos * 100) + (bribes * 1000);
+    money += (thugs * 1) + (soldiers * 10) + (casinos * 100);
     updateDisplay();
 }
 
