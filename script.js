@@ -72,3 +72,11 @@ function updateDisplay() {
     casinoCounter.textContent = casinos;
     bribeCounter.textContent = bribes;
 }
+
+// Passive income generation
+function generateIncome() {
+    money += (thugs * 1) + (soldiers * 10) + (casinos * 100) + (bribes * 1000);
+    updateDisplay();
+}
+
+setInterval(generateIncome, 1000);
