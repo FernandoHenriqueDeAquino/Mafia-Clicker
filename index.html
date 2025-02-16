@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mafia Clicker</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="game-container">
+        <h1>Mafia Clicker</h1>
+        <p>Click to earn money and grow your empire!</p>
+        <button id="click-button" class="click-effect">Extort Money</button>
+        <p>Money: <span id="money-counter">0</span></p>
+        
+        <h2>Upgrades</h2>
+        <div>
+            <button id="hire-thug-1" class="upgrade-button">Hire 1 Thug ($10)</button>
+            <button id="hire-thug-10" class="upgrade-button">Hire 10 Thugs ($100)</button>
+            <button id="hire-thug-100" class="upgrade-button">Hire 100 Thugs ($1000)</button>
+            <button id="hire-thug-max" class="upgrade-button">Hire Max</button>
+        </div>
+        <p>Thugs: <span id="thug-counter">0</span></p>
+        
+        <h2>Advanced Upgrades</h2>
+        <div>
+            <button id="hire-soldier" class="upgrade-button">Hire 1 Soldier ($1000)</button>
+            <button id="buy-casino" class="upgrade-button">Buy Illegal Casino ($50000)</button>
+            <button id="bribe-politician" class="upgrade-button">Bribe Politician ($250000)</button>
+        </div>
+        <p>Soldiers: <span id="soldier-counter">0</span></p>
+        <p>Casinos: <span id="casino-counter">0</span></p>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
