@@ -31,53 +31,60 @@ function updateCosts() {
     casinoCost = baseCasinoCost * Math.pow(1.15, casinos) * discountFactor;
 }
 
-function buyUpgrade(unit, cost, amount, unitVar, costVar) {
+function buyUpgrade(unitVar, baseCost) {
+    let cost = baseCost * Math.pow(1.15, window[unitVar]);
+    if (money >= cost) {
+        money -= cost;
+        window[unitVar]++;
+        updateCosts();
+        updateDisplay();
+    }
+}
+
+function buyMultipleUpgrades(unitVar, baseCost, amount) {
     let totalCost = 0;
     for (let i = 0; i < amount; i++) {
-        totalCost += cost * Math.pow(1.15, unit + i);
+        totalCost += baseCost * Math.pow(1.15, window[unitVar] + i);
     }
     if (money >= totalCost) {
         money -= totalCost;
         window[unitVar] += amount;
         updateCosts();
-        return amount;
-    }
-    return 0;
-}
-
-function buyMaxUpgrade(unit, cost, unitVar, costVar) {
-    let amount = 0;
-    while (money >= cost * Math.pow(1.15, unit + amount)) {
-        money -= cost * Math.pow(1.15, unit + amount);
-        amount++;
-    }
-    window[unitVar] += amount;
-    updateCosts();
-    return amount;
-}
-
-function addEventListeners(idPrefix, unitVar, costVar) {
-    document.getElementById(`${idPrefix}-1`).addEventListener("click", function() {
-        buyUpgrade(eval(unitVar), eval(costVar), 1, unitVar, costVar);
         updateDisplay();
+    }
+}
+
+function buyMaxUpgrade(unitVar, baseCost) {
+    let amount = 0;
+    let cost = baseCost * Math.pow(1.15, window[unitVar]);
+    while (money >= cost) {
+        money -= cost;
+        window[unitVar]++;
+        amount++;
+        cost = baseCost * Math.pow(1.15, window[unitVar]);
+    }
+    updateCosts();
+    updateDisplay();
+}
+
+function addEventListeners(idPrefix, unitVar, baseCost) {
+    document.getElementById(`${idPrefix}-1`).addEventListener("click", function() {
+        buyUpgrade(unitVar, baseCost);
     });
     document.getElementById(`${idPrefix}-10`).addEventListener("click", function() {
-        buyUpgrade(eval(unitVar), eval(costVar), 10, unitVar, costVar);
-        updateDisplay();
+        buyMultipleUpgrades(unitVar, baseCost, 10);
     });
     document.getElementById(`${idPrefix}-100`).addEventListener("click", function() {
-        buyUpgrade(eval(unitVar), eval(costVar), 100, unitVar, costVar);
-        updateDisplay();
+        buyMultipleUpgrades(unitVar, baseCost, 100);
     });
     document.getElementById(`${idPrefix}-max`).addEventListener("click", function() {
-        buyMaxUpgrade(eval(unitVar), eval(costVar), unitVar, costVar);
-        updateDisplay();
+        buyMaxUpgrade(unitVar, baseCost);
     });
 }
 
-addEventListeners("hire-thug", "thugs", "thugCost");
-addEventListeners("hire-soldier", "soldiers", "soldierCost");
-addEventListeners("buy-casino", "casinos", "casinoCost");
+addEventListeners("hire-thug", "thugs", baseThugCost);
+addEventListeners("hire-soldier", "soldiers", baseSoldierCost);
+addEventListeners("buy-casino", "casinos", baseCasinoCost);
 
 document.getElementById("bribe-politician-1").addEventListener("click", function() {
     if (money >= bribeCost) {
