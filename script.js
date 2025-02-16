@@ -134,3 +134,33 @@ document.addEventListener("DOMContentLoaded", () => {
     // Inicializa a UI
     updateUI();
 });
+
+function setCookie(name, value, days) {
+  const expires = new Date(Date.now() + days * 86400 * 1000).toUTCString();
+  document.cookie = `${name}=${value}; expires=${expires}; path=/`;
+}
+
+function getCookie(name) {
+  const cookies = document.cookie.split(';');
+  for (let i = 0; i < cookies.length; i++) {
+    const cookie = cookies[i].trim();
+    if (cookie.startsWith(`${name}=`)) {
+      return cookie.substring(name.length + 1);
+    }
+  }
+  return null;
+}
+
+function deleteCookie(name) {
+  setCookie(name, '', -1);
+}
+
+// Set a cookie
+setCookie('username', 'John Doe', 30);
+
+// Get a cookie
+const username = getCookie('username');
+console.log(username); // Output: John Doe
+
+// Delete a cookie
+deleteCookie('username');
