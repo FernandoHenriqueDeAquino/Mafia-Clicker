@@ -26,66 +26,58 @@ document.getElementById("click-button").addEventListener("click", function() {
 
 function updateCosts() {
     let discountFactor = Math.pow(0.75, bribes);
-    thugCost = baseThugCost * discountFactor;
-    soldierCost = baseSoldierCost * discountFactor;
-    casinoCost = baseCasinoCost * discountFactor;
+    thugCost = baseThugCost * Math.pow(1.15, thugs) * discountFactor;
+    soldierCost = baseSoldierCost * Math.pow(1.15, soldiers) * discountFactor;
+    casinoCost = baseCasinoCost * Math.pow(1.15, casinos) * discountFactor;
 }
 
-function buyUpgrade(unit, cost, amount) {
+function buyUpgrade(unit, cost, amount, unitVar, costVar) {
     let totalCost = 0;
     for (let i = 0; i < amount; i++) {
         totalCost += cost * Math.pow(1.15, unit + i);
     }
     if (money >= totalCost) {
         money -= totalCost;
+        window[unitVar] += amount;
+        updateCosts();
         return amount;
     }
     return 0;
 }
 
-function buyMaxUpgrade(unit, cost) {
+function buyMaxUpgrade(unit, cost, unitVar, costVar) {
     let amount = 0;
     while (money >= cost * Math.pow(1.15, unit + amount)) {
         money -= cost * Math.pow(1.15, unit + amount);
         amount++;
     }
+    window[unitVar] += amount;
+    updateCosts();
     return amount;
 }
 
-function addEventListeners(idPrefix, unitVar) {
-    let costVar;
-    switch (unitVar) {
-        case "thugs": costVar = "thugCost"; break;
-        case "soldiers": costVar = "soldierCost"; break;
-        case "casinos": costVar = "casinoCost"; break;
-        default: return;
-    }
-
+function addEventListeners(idPrefix, unitVar, costVar) {
     document.getElementById(`${idPrefix}-1`).addEventListener("click", function() {
-        let amount = buyUpgrade(eval(unitVar), eval(costVar), 1);
-        eval(unitVar + " += amount");
+        buyUpgrade(eval(unitVar), eval(costVar), 1, unitVar, costVar);
         updateDisplay();
     });
     document.getElementById(`${idPrefix}-10`).addEventListener("click", function() {
-        let amount = buyUpgrade(eval(unitVar), eval(costVar), 10);
-        eval(unitVar + " += amount");
+        buyUpgrade(eval(unitVar), eval(costVar), 10, unitVar, costVar);
         updateDisplay();
     });
     document.getElementById(`${idPrefix}-100`).addEventListener("click", function() {
-        let amount = buyUpgrade(eval(unitVar), eval(costVar), 100);
-        eval(unitVar + " += amount");
+        buyUpgrade(eval(unitVar), eval(costVar), 100, unitVar, costVar);
         updateDisplay();
     });
     document.getElementById(`${idPrefix}-max`).addEventListener("click", function() {
-        let amount = buyMaxUpgrade(eval(unitVar), eval(costVar));
-        eval(unitVar + " += amount");
+        buyMaxUpgrade(eval(unitVar), eval(costVar), unitVar, costVar);
         updateDisplay();
     });
 }
 
-addEventListeners("hire-thug", "thugs");
-addEventListeners("hire-soldier", "soldiers");
-addEventListeners("buy-casino", "casinos");
+addEventListeners("hire-thug", "thugs", "thugCost");
+addEventListeners("hire-soldier", "soldiers", "soldierCost");
+addEventListeners("buy-casino", "casinos", "casinoCost");
 
 document.getElementById("bribe-politician-1").addEventListener("click", function() {
     if (money >= bribeCost) {
