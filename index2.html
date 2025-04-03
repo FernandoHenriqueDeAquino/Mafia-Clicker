@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mafia Tycoon</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #1a1a1a;
+            color: #ffffff;
+            text-align: center;
+            padding: 20px;
+        }
+
+        #money {
+            font-size: 36px;
+            color: #00ff00;
+            margin: 20px 0 10px 0;
+        }
+        
+        #mps {
+            font-size: 24px;
+            color: #00ff00;
+            margin: 0 0 20px 0;
+        }
+
+        .button {
+            background-color: #4a4a4a;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            margin: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 18px;
+            transition: background-color 0.3s;
+        }
+
+        .btn-buy {
+            background-color: #4a4a40;
+            color: #00ff00;
+            padding: 8px 15px;
+            margin: 5px;
+            font-size: 14px;
+            width: 120px;
+            border: 1px solid #333;
+        }
+
+        .button:hover:not(.disabled) {
+            background-color: #666666;
+        }
+
+        .upgrade {
+            border: 2px solid #444444;
+            padding: 15px;
+            margin: 10px;
+            display: inline-block;
+            width: 280px;
+        }
+
+        .disabled {
+            background-color: #333333;
+            color: #ffffff;
+            cursor: not-allowed;
+        }
+
+        .disabled:hover {
+            background-color: #333333;
+        }
+
+        .button-group {
+            margin: 10px 0;
+        }
+
+        #resetBtn {
+            background-color: #660000;
+            margin-top: 20px;
+        }
+        
+        #resetBtn:hover {
+            background-color: #990000;
+        }
+    </style>
+</head>
+<body>
+    <h1>Mafia Tycoon</h1>
+    <div id="money">$0</div>
+    <div id="mps">$0/sec</div>
+    
+    <button class="button" onclick="shakeDown()">Shakedown</button>
+    <button class="button" id="resetBtn" onclick="resetGame()">Reset Empire</button>
+    
+    <h2>Operations</h2>
+    <div id="upgrades">
+        <!-- All upgrade tiers (same as previous version) -->
+    </div>
+
+    <script>
+        const SAVE_KEY = 'mafiaTycoonSave';
+        const INITIAL_STATE = {
+            money: 0,
+            upgrades: {
+                gangMember: { count: 0, cost: 50, multiplier: 1.15, income: 1 },
+                dealer: { count: 0, cost: 200, multiplier: 1.15, income: 5 },
+                protectionRacket: { count: 0, cost: 1000, multiplier: 1.15, income: 20 },
+                casino: { count: 0, cost: 5000, multiplier: 1.15, income: 100 },
+                bankHeist: { count: 0, cost: 20000, multiplier: 1.15, income: 500 },
+                drugLab: { count: 0, cost: 100000, multiplier: 1.15, income: 2000 },
+                smuggling: { count: 0, cost: 500000, multiplier: 1.15, income: 10000 },
+                moneyLaundering: { count: 0, cost: 2000000, multiplier: 1.15, income: 50000 },
+                politicalCorruption: { count: 0, cost: 10000000, multiplier: 1.15, income: 200000 },
+                cityTakeover: { count: 0, cost: 50000000, multiplier: 1.15, income: 1000000 }
+            }
+        };
+
+        let money = INITIAL_STATE.money;
+        let upgrades = JSON.parse(JSON.stringify(INITIAL_STATE.upgrades));
+        const upgradeOrder = [
+            'gangMember', 'dealer', 'protectionRacket', 'casino',
+            'bankHeist', 'drugLab', 'smuggling', 'moneyLaundering',
+            'politicalCorruption', 'cityTakeover'
+        ];
+
+        // Shakedown function fix
+        function shakeDown() {
+            money += 1;
+            updateDisplay();
+            saveGame();
+        }
+
+        // Rest of the functions remain unchanged
+        function calculateTotalCost(baseCost, quantity, multiplier) {
+            return baseCost * (Math.pow(multiplier, quantity) - 1) / (multiplier - 1);
+        }
+
+        function calculateMaxPurchase(upgrade) {
+            let count = 0;
+            let totalCost = 0;
+            let currentCost = upgrade.cost;
+            
+            while (totalCost + currentCost <= money) {
+                totalCost += currentCost;
+                currentCost *= upgrade.multiplier;
+                count++;
+            }
+            return count;
+        }
+
+        function buyUpgrade(type, quantity) {
+            const upgrade = upgrades[type];
+            let purchaseQty = 0;
+            
+            if (quantity === 'max') {
+                purchaseQty = calculateMaxPurchase(upgrade);
+            } else {
+                const maxPossible = calculateMaxPurchase(upgrade);
+                purchaseQty = Math.min(quantity, maxPossible);
+            }
+
+            if (purchaseQty < 1) return;
+
+            const totalCost = calculateTotalCost(upgrade.cost, purchaseQty, upgrade.multiplier);
+            
+            if (money >= totalCost) {
+                money -= totalCost;
+                upgrade.count += purchaseQty;
+                upgrade.cost *= Math.pow(upgrade.multiplier, purchaseQty);
+                updateDisplay();
+                saveGame();
+            }
+        }
+
+        function updateDisplay() {
+            document.getElementById('money').textContent = `$${Math.floor(money)}`;
+            document.getElementById('mps').textContent = `$${calculateAutoMoney()}/sec`;
+
+            upgradeOrder.forEach(upgradeKey => {
+                document.getElementById(`${upgradeKey}Cost`).textContent = Math.floor(upgrades[upgradeKey].cost);
+                document.getElementById(`${upgradeKey}Count`).textContent = upgrades[upgradeKey].count;
+                updateButtonStates(upgradeKey);
+            });
+
+            upgradeOrder.forEach((upgradeKey, index) => {
+                if (index < 2) return;
+                const prevUpgrade = upgradeOrder[index - 1];
+                const element = document.getElementById(`${upgradeKey}Upgrade`);
+                element.style.display = upgrades[prevUpgrade].count >= 10 ? 'inline-block' : 'none';
+            });
+        }
+
+        function updateButtonStates(type) {
+            const upgrade = upgrades[type];
+            const canBuy1 = money >= upgrade.cost;
+            const canBuy10 = money >= calculateTotalCost(upgrade.cost, 10, upgrade.multiplier);
+            const canBuyMax = calculateMaxPurchase(upgrade) > 0;
+
+            [1, 10, 'max'].forEach((qty, i) => {
+                const btn = document.getElementById(`${type}Btn${qty === 'max' ? 'Max' : qty}`);
+                btn.className = [canBuy1, canBuy10, canBuyMax][i] ? 'btn-buy' : 'btn-buy disabled';
+            });
+        }
+
+        function calculateAutoMoney() {
+            return Math.floor(upgradeOrder.reduce((total, key) => 
+                total + (upgrades[key].count * upgrades[key].income), 0));
+        }
+
+        function saveGame() {
+            const saveData = {
+                money: money,
+                upgrades: Object.fromEntries(
+                    Object.entries(upgrades).map(([key, val]) => [key, {
+                        count: val.count,
+                        cost: val.cost
+                    }])
+                )
+            };
+            localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
+        }
+
+        function loadGame() {
+            const savedData = localStorage.getItem(SAVE_KEY);
+            if (savedData) {
+                try {
+                    const parsedData = JSON.parse(savedData);
+                    money = parsedData.money || 0;
+                    Object.keys(parsedData.upgrades).forEach(key => {
+                        if (upgrades[key]) {
+                            upgrades[key].count = parsedData.upgrades[key].count || 0;
+                            upgrades[key].cost = parsedData.upgrades[key].cost || INITIAL_STATE.upgrades[key].cost;
+                        }
+                    });
+                } catch(e) {
+                    console.error('Error loading save:', e);
+                }
+            }
+        }
+
+        function resetGame() {
+            if (confirm('Are you sure you want to reset your entire empire?')) {
+                localStorage.removeItem(SAVE_KEY);
+                money = INITIAL_STATE.money;
+                upgrades = JSON.parse(JSON.stringify(INITIAL_STATE.upgrades));
+                updateDisplay();
+            }
+        }
+
+        // Initialize game
+        setInterval(() => {
+            money += calculateAutoMoney() / 10;
+            updateDisplay();
+        }, 100);
+
+        setInterval(saveGame, 10000);
+        window.addEventListener('beforeunload', saveGame);
+        loadGame();
+        updateDisplay();
+    </script>
+</body>
+</html>

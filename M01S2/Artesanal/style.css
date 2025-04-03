@@ -1,0 +1,60 @@
+body {
+    background-color: darkgrey;
+}
+
+#header {
+    background-image: url('https://img.freepik.com/free-photo/top-view-hands-holding-bread_23-2148544856.jpg?t=st=1742587664~exp=1742591264~hmac=22625362d6ba1d3ad525db6154d5f8aac8c9cf5080b5728e16e24a5c5b746ba1&w=1380');
+    background-size: cover;
+}
+
+.flex-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#mainTitle {
+    font-family: "Ewert", system-ui;
+    font-size: 100px;
+    color: white;
+    border-color: black;
+    border-width: 10px;
+    text-shadow: 4px 6px 18px black;
+}
+
+#subTitle {
+    font-family: "Quintessential", system-ui;
+    font-size: 50px;
+    color: white;
+    border-color: black;
+    border-width: 10px;
+    text-shadow: 15px 15px 50px black;
+    padding-bottom: 50px;
+}
+
+#historyTitle {
+    font-family: "IM Fell Great Primer", system-ui;
+    font-size: 50px;
+    color: white;
+    border-color: black;
+    border-width: 10px;
+    text-shadow: 4px 4px 7px black;
+}
+
+#historyText {
+    max-width: 60%;
+    background-color: gray;
+    padding: 20px;
+    padding-bottom: 60px;
+    padding-top: 60px;
+    text-align: justify;
+    line-height: 50px;
+    border-radius: 10px;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+    font-family: "IM Fell Great Primer", system-ui;
+    font-size: 30px;
+    color: white;
+    border-color: black;
+    border-width: 10px;
+    text-shadow: 1px 1px 3px black; 
+}
